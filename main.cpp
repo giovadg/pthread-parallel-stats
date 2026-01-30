@@ -121,7 +121,7 @@ int main(int argc, char** argv) {
   for (auto it=timings.begin(); it != timings.end();it++){
     cout << it->first <<": "<< (it->second)/Ntest_speed<<" [s]"<<endl;
     cout <<" "<<endl;
-    f << it->first<<";"<<it->second<<"\n";
+    f << it->first<<";"<<(it->second)/Ntest_speed<<"\n";
   }
 
   // quick sanity check
@@ -143,7 +143,9 @@ int main(int argc, char** argv) {
     cout <<"max correlation is: " << *max_element(roll_corr_ser[0][0].begin(), roll_corr_ser[0][0].end());
   }
 
-  in_out::save_correlation(roll_corr_pll, "correlation.bin");  
+  if (do_mean) in_out::save_stat(roll_av_pll,   "mean.bin");
+  if (do_var)  in_out::save_stat(roll_var_pll,  "variance.bin");
+  if (do_corr) in_out::save_stat(roll_corr_pll, "correlation.bin"); 
 
 
   return 0;

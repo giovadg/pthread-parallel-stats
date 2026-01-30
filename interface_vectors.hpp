@@ -14,7 +14,16 @@ void interface_vectors_generation(string path,int n_vect, int n, vector<vector<d
                                     vector<vector<double>>& roll_var_ser, vector<vector<double>>& roll_var_pll,
                                     vector<vector<vector<double>>>& roll_corr_ser, vector<vector<vector<double>>>& roll_corr_pll );
 
-void save_correlation(const vector<vector<vector<double>>>& corr,
+
+void save_stat_impl(const vector<vector<double>>& stat,
                  const string& fname);
 
+void save_stat_impl(const vector<vector<vector<double>>>& stat,
+                 const string& fname);
+
+template <typename T>
+void save_stat(const T& corr, const string& fname)
+{
+    save_stat_impl(corr, fname);
+}
 }

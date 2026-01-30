@@ -183,11 +183,27 @@ void interface_vectors_generation(string path,int n_vect, int n, vector<vector<d
 }
 
 
-void save_correlation(const vector<vector<vector<double>>>& corr,
+void save_stat_impl(const vector<vector<double>>& stat,
                  const string& fname)
 {
-    int  n_vect = corr.size();
-    size_t n_el = corr[0][0].size();
+    int  n_vect = stat.size();
+    size_t n_el = stat[0].size();
+
+    std::ofstream out(fname, std::ios::binary);
+
+    out.write(reinterpret_cast<char*>(&n_vect), sizeof(int));
+    out.write(reinterpret_cast<char*>(&n_el), sizeof(size_t));
+ 
+    for (int ii = 0; ii < n_vect; ii++){
+        out.write(reinterpret_cast<const char*>(stat[ii].data()), n_el * sizeof(double));
+    }
+}
+
+void save_stat_impl(const vector<vector<vector<double>>>& stat,
+                 const string& fname)
+{
+    int  n_vect = stat.size();
+    size_t n_el = stat[0][0].size();
 
     std::ofstream out(fname, std::ios::binary);
 
@@ -197,11 +213,10 @@ void save_correlation(const vector<vector<vector<double>>>& corr,
 
     for (int ii = 0; ii < n_vect; ii++){
         for (int jj = 0; jj < n_vect; jj++){
-            out.write(reinterpret_cast<const char*>(corr[ii][jj].data()),
+            out.write(reinterpret_cast<const char*>(stat[ii][jj].data()),
                     n_el * sizeof(double));
         }
     }
 }
-
 
 };

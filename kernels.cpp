@@ -114,31 +114,38 @@ void rolling_var_exec(const vector<vector<double>> &arr_in, vector<vector<double
                         vector<vector<double>> &arr_var,
                          size_t &w, int start_index, int end_index, int vect_start, int vect_end){
 
+    double sum, mu;
+
     if (end_index == -1) end_index = (int)arr_in[0].size();
     if (vect_end  == -1) vect_end  = (int)arr_in.size();
 
-    auto lamb = [] (double aa) {return aa*aa;};
-    double sum_sq, sum;
+    auto lamb = [&mu] (double aa) {return (aa-mu)*(aa-mu);};
     // 1. compute the first var
     for (int jj=vect_start; jj<vect_end;jj++){
-        sum_sq = std::transform_reduce(arr_in[jj].begin() + start_index,arr_in[jj].begin() + start_index + w, 
-                                                0.0, std::plus<>(), lamb);
 
         sum    = std::accumulate(arr_in[jj].begin()+start_index, arr_in[jj].begin()+start_index+w, 0.0);
+        mu     = sum/w;
 
-        arr_var[jj][start_index]    = sum_sq/w - (sum/w)*(sum/w);
-        arr_mean[jj][start_index]   = sum/w;
+        double sum_dev_sq = std::transform_reduce(arr_in[jj].begin() + start_index,arr_in[jj].begin() + start_index + w, 
+                                                0.0, std::plus<>(), lamb);
+
+        arr_var[jj][start_index]    = sum_dev_sq/w;
+        arr_mean[jj][start_index]   = mu;
+
     }    
 
     // 3. Computes the other averages using DP
     //    Iterate from the starting index + 1 until the last available point   
     for (int jj=vect_start; jj<vect_end;jj++){
+        double sum_dev_sq = arr_var[jj][start_index] * w;
         for (int ii=start_index+1; ii<=end_index-w;ii++){
-            sum_sq = sum_sq - lamb(arr_in[jj][ii-1]) + lamb(arr_in[jj][ii+w-1]);
 
-            arr_mean[jj][ii] = (w*arr_mean[jj][ii-1] - arr_in[jj][ii-1] + arr_in[jj][ii+w-1])/w;
+            arr_mean[jj][ii] = arr_mean[jj][ii-1] + (arr_in[jj][ii+w-1] - arr_in[jj][ii-1])/w;
 
-            arr_var[jj][ii]  = sum_sq/w - arr_mean[jj][ii]*arr_mean[jj][ii];
+            sum_dev_sq = sum_dev_sq - (arr_in[jj][ii-1] - arr_mean[jj][ii]) * (arr_in[jj][ii-1] - arr_mean[jj][ii]) +
+                                         + (arr_in[jj][ii+w-1] - arr_mean[jj][ii-1]) * (arr_in[jj][ii+w-1] - arr_mean[jj][ii-1]) ;          
+
+            arr_var[jj][ii]  = sum_dev_sq/w;
 
         }
     }
