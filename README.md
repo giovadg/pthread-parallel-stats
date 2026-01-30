@@ -14,7 +14,7 @@ This project implements a small but complete **numerical analytics engine** for 
 - explicit pthread-based parallelism (no OpenMP)
 - predictable performance and low overhead
 - clean separation between execution engine and numerical kernels
-- reproducible benchmarking with a Juppyter Nootebook
+- reproducible benchmarking with a Notebook
   - scaling as function of vector size
   - scaling as function of rolling window size
   - scaling as function of N threads used
